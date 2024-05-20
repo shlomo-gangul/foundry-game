@@ -1,25 +1,31 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.25;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./DillemaGame.sol";
 
 contract GameFactory {
     ERC20 public token;
     uint256 public tokenAmount;
     uint256 public gameDuration;
     uint256 public gameCount;
+
     DillemaGame public game;
 
-    constructor(_tokenAddress, _tokenAmount, _gameDuration) {
+    constructor(
+        address _tokenAddress,
+        uint256 _tokenAmount,
+        uint256 _gameDuration
+    ) {
         token = ERC20(_tokenAddress);
         tokenAmount = _tokenAmount;
         gameDuration = _gameDuration;
-        game = new DillemaGame();
+        game = new DillemaGame(token, tokenAmount, gameDuration);
         gameCount = 0;
     }
 
     function createNewGame() external {
-        game.createNewGame(token, tokenAmount, gameDuration);
+        game.createNewGame();
         gameCount++;
     }
 }
