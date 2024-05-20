@@ -25,8 +25,6 @@ contract DillemaGame {
     uint256 gameCount;
 
     constructor(ERC20 _token, uint256 _tokenAmount, uint256 _gameDuration) {
-        player1 = msg.sender;
-        player2 = address(0);
         token = _token;
         tokenAmount = _tokenAmount;
         gameDuration = _gameDuration;

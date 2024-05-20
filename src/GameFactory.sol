@@ -20,11 +20,12 @@ contract GameFactory {
         token = ERC20(_tokenAddress);
         tokenAmount = _tokenAmount;
         gameDuration = _gameDuration;
-        game = new DillemaGame(token, tokenAmount, gameDuration);
+
         gameCount = 0;
     }
 
     function createNewGame() external {
+        game = new DillemaGame(token, tokenAmount, gameDuration);
         game.createNewGame();
         gameCount++;
     }
