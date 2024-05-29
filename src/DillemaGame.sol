@@ -32,12 +32,25 @@ contract DillemaGame {
     }
 
     function createNewGame() external {
-        require(player2 == address(0), "Game already has two players");
-        player2 = msg.sender;
+        require(player1 == address(0), "Game already has two players");
+        player1 = msg.sender;
         gameCount++;
     }
 
     function getGameCount() external view returns (uint256) {
         return gameCount;
+    }
+
+    function joinGamePlayer1(address _player1) external {
+        require(player1 != address(0), "Game has no player 1");
+        require(player2 == address(0), "Game already has two players");
+        player1 = _player1;
+        require(player1 != address(0), "Player 1 faild to join Game");
+    }
+
+    function joinGamePlayer2(address _player2) external {
+        require(player1 != address(0), "Game has no player 1");
+        player2 = _player2;
+        require(player2 != address(0), "Player 2 faild to join Game");
     }
 }

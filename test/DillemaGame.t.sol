@@ -23,12 +23,18 @@ contract DillemaGameTest is Test {
     function testSouldBeAbleToJoinGame() public {
         address player1 = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
         address player2 = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
-
+        game = new DillemaGame(token, 3e18, 5);
         //create new game
+        game.createNewGame();
         //join game player1
+        game.joinGamePlayer1(player1);
         //join game player2
+        game.joinGamePlayer2(player2);
         //assert player1 and player2 are not equal
+        assert(player1 != player2);
         //assert player1 and player2 are not the same address
+        assert(player1 != address(0));
+        assert(player2 != address(0));
     }
 
     function testGameDepositsAreEqual() public {
