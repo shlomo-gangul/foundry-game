@@ -16,11 +16,8 @@ contract DillemaGame {
     bool public player1ChoiceCommitted;
     bool public player2ChoiceCommitted;
 
-    bool public player1DepositCommitted;
-    bool public player2DepositCommitted;
-
     ERC20 token;
-    uint256 tokenAmount;
+    uint256 public tokenAmount;
     uint256 gameDuration;
     uint256 gameCount;
 
@@ -31,9 +28,10 @@ contract DillemaGame {
         gameCount = 0;
     }
 
-    function createNewGame() external {
+    function createNewGame(ERC20 _token) external {
         require(player1 == address(0), "Game already has two players");
         player1 = msg.sender;
+        token = _token;
         gameCount++;
     }
 
@@ -52,5 +50,27 @@ contract DillemaGame {
         require(player1 != address(0), "Game has no player 1");
         player2 = _player2;
         require(player2 != address(0), "Player 2 faild to join Game");
+    }
+
+    function depositPlayer1(
+        address _player1,
+        ERC20 _token,
+        uint256 _amount
+    ) external {
+        require(player1 == _player1, "Player 1 is not the sender");
+        require(_amount != 0, "Can't deposit 0 tokens");
+        require(_token == token, "Token is not the same as the game token");
+        player1Deposit = _amount;
+    }
+
+    function depositPlayer2(
+        address _player2,
+        ERC20 _token,
+        uint256 _amount
+    ) external {
+        require(player2 == _player2, "Player 2 is not the sender");
+        require(_amount != 0, "Can't deposit 0 tokens");
+        require(_token == token, "Token is not the same as the game token");
+        player2Deposit = _amount;
     }
 }

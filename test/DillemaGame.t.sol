@@ -15,17 +15,18 @@ contract DillemaGameTest is Test {
 
     function testCreateNewGame() public {
         token = new GameToken("gameTk", "GTK");
-        game = new DillemaGame(token, 3e18, 5);
-        game.createNewGame();
+        game = new DillemaGame(token, 4e18, 5);
+        game.createNewGame(token);
         assertEq(game.getGameCount(), 1);
     }
 
     function testSouldBeAbleToJoinGame() public {
         address player1 = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
         address player2 = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
-        game = new DillemaGame(token, 3e18, 5);
+        token = new GameToken("gameTk", "GTK");
+        game = new DillemaGame(token, 4e18, 5);
         //create new game
-        game.createNewGame();
+        game.createNewGame(token);
         //join game player1
         game.joinGamePlayer1(player1);
         //join game player2
@@ -38,11 +39,29 @@ contract DillemaGameTest is Test {
     }
 
     function testGameDepositsAreEqual() public {
+        address player1 = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
+        address player2 = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
+        token = new GameToken("gameTk", "GTK");
+        game = new DillemaGame(token, 4e18, 5);
+
         //create new game
+        game.createNewGame(token);
         //join game player1
+        game.joinGamePlayer1(player1);
         //join game player2
+        game.joinGamePlayer2(player2);
+        //deposit player1
+        game.depositPlayer1(player1, token, 2e18);
+        //deposit player2
+        game.depositPlayer2(player2, token, 2e18);
         //assert deposit of player1 and player2 not 0
+        assert(game.player1Deposit() != 0 && game.player2Deposit() != 0);
         //assert player1Deposit is equal to player2Deposit
-        //assert player1Deposit plus player2Deposit is equal to tokenAmount
+        assertEq(game.player1Deposit(), game.player2Deposit());
+        //assert player1Deposit plus player2Deposit is equal to tokenAmountyer2Deposit is equal to tokenAmount
+        assertEq(
+            game.player1Deposit() + game.player2Deposit(),
+            game.tokenAmount()
+        );
     }
 }
