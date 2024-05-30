@@ -22,6 +22,7 @@ contract DillemaGame {
     ERC20 token;
     uint256 public tokenAmount;
     uint256 gameDuration;
+    uint256 public roundCount;
     uint256 gameCount;
 
     constructor(ERC20 _token, uint256 _tokenAmount, uint256 _gameDuration) {
@@ -29,6 +30,7 @@ contract DillemaGame {
         tokenAmount = _tokenAmount;
         gameDuration = _gameDuration;
         gameCount = 0;
+        roundCount = 0;
     }
 
     function createNewGame(ERC20 _token) external {
@@ -92,11 +94,12 @@ contract DillemaGame {
     }
 
     function roundStart() external {
+        roundCount++;
         require(
             player1ChoiceCommitted && player2ChoiceCommitted,
             "Both players must commit their choices"
         );
-        require(gameCount < gameDuration, "Game duration has expired");
+        require(roundCount <= gameDuration, "Game duration has expired");
         if (player1Choice == 1 && player2Choice == 1) {
             player1Points += 5;
             player2Points += 5;
@@ -109,6 +112,21 @@ contract DillemaGame {
         } else if (player1Choice == 2 && player2Choice == 2) {
             player1Points += 2;
             player2Points += 2;
+        }
+        player1Choice = 0;
+        player2Choice = 0;
+        player1ChoiceCommitted = false;
+        player2ChoiceCommitted = false;
+    }
+
+    function getWinner() external view returns (address) {
+        require(roundCount == gameDuration, "Game is not over yet");
+        if (player1Points > player2Points) {
+            return player1;
+        } else if (player1Points < player2Points) {
+            return player2;
+        } else {
+            return address(0);
         }
     }
 }
