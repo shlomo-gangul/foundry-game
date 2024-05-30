@@ -64,4 +64,32 @@ contract DillemaGameTest is Test {
             game.tokenAmount()
         );
     }
+
+    function testSetGameChoice() public {
+        address player1 = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
+        address player2 = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
+        token = new GameToken("gameTk", "GTK");
+        game = new DillemaGame(token, 4e18, 5);
+
+        //create new game
+        game.createNewGame(token);
+        //join game player1
+        game.joinGamePlayer1(player1);
+        //join game player2
+        game.joinGamePlayer2(player2);
+        //deposit player1
+        game.depositPlayer1(player1, token, 2e18);
+        //deposit player2
+        game.depositPlayer2(player2, token, 2e18);
+        //set game choice for player1
+        game.setPlayer1Choice(player1, 1);
+        //set game choice for player2
+        game.setPlayer2Choice(player2, 2);
+        //assert player1Choice is not equal to player2Choice
+        assert(game.player1Choice() != game.player2Choice());
+        //assert player1Choice is equal to 1
+        assertEq(game.player1Choice(), 1);
+        //assert player2Choice is equal to 2
+        assertEq(game.player2Choice(), 2);
+    }
 }

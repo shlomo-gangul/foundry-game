@@ -13,6 +13,9 @@ contract DillemaGame {
     uint256 public player1Deposit;
     uint256 public player2Deposit;
 
+    uint256 public player1Points;
+    uint256 public player2Points;
+
     bool public player1ChoiceCommitted;
     bool public player2ChoiceCommitted;
 
@@ -72,5 +75,40 @@ contract DillemaGame {
         require(_amount != 0, "Can't deposit 0 tokens");
         require(_token == token, "Token is not the same as the game token");
         player2Deposit = _amount;
+    }
+
+    function setPlayer1Choice(address _player1, uint256 _choice) external {
+        require(player1 == _player1, "Player 1 is not the sender");
+        require(_choice == 1 || _choice == 2, "Invalid choice");
+        player1Choice = _choice;
+        player1ChoiceCommitted = true;
+    }
+
+    function setPlayer2Choice(address _player2, uint256 _choice) external {
+        require(player2 == _player2, "Player 2 is not the sender");
+        require(_choice == 1 || _choice == 2, "Invalid choice");
+        player2Choice = _choice;
+        player2ChoiceCommitted = true;
+    }
+
+    function roundStart() external {
+        require(
+            player1ChoiceCommitted && player2ChoiceCommitted,
+            "Both players must commit their choices"
+        );
+        require(gameCount < gameDuration, "Game duration has expired");
+        if (player1Choice == 1 && player2Choice == 1) {
+            player1Points += 5;
+            player2Points += 5;
+        } else if (player1Choice == 1 && player2Choice == 2) {
+            player1Points += 2;
+            player2Points += 8;
+        } else if (player1Choice == 2 && player2Choice == 1) {
+            player1Points += 8;
+            player2Points += 2;
+        } else if (player1Choice == 2 && player2Choice == 2) {
+            player1Points += 2;
+            player2Points += 2;
+        }
     }
 }
