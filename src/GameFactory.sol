@@ -11,7 +11,7 @@ contract GameFactory {
     uint256 public gameCount;
 
     DillemaGame public game;
-    DillemaGame public gamesThatEnded;
+    DillemaGame[] public gamesHistory;
 
     constructor(
         address _tokenAddress,
@@ -33,5 +33,19 @@ contract GameFactory {
 
     function isGameOver() public view returns (bool) {
         return game.getIsGameOver();
+    }
+
+    function addGameToHistory() public {
+        if (game.getIsGameOver() == true) {
+            gamesHistory.push(game);
+        }
+    }
+
+    function getGamesHistory() public view returns (DillemaGame[] memory) {
+        return gamesHistory;
+    }
+
+    function getGameCount() public view returns (uint256) {
+        return gameCount;
     }
 }

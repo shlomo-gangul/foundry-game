@@ -27,4 +27,10 @@ contract GameFactoryTest is Test {
         factory.setNewGame();
         assert(factory.isGameOver() == false);
     }
+
+    function testAddGameToHistory() public {
+        factory.setNewGame();
+        factory.addGameToHistory();
+        assertEq(factory.getGamesHistory().length + 1, factory.gameCount());
+    }
 }
