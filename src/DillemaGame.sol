@@ -18,6 +18,7 @@ contract DillemaGame {
 
     bool public player1ChoiceCommitted;
     bool public player2ChoiceCommitted;
+    bool public isGameOver;
 
     ERC20 token;
     uint256 public tokenAmount;
@@ -37,11 +38,16 @@ contract DillemaGame {
         require(player1 == address(0), "Game already has two players");
         player1 = msg.sender;
         token = _token;
+        isGameOver = false;
         gameCount++;
     }
 
     function getGameCount() external view returns (uint256) {
         return gameCount;
+    }
+
+    function getIsGameOver() external view returns (bool) {
+        return isGameOver;
     }
 
     function joinGamePlayer1(address _player1) external {
@@ -119,8 +125,9 @@ contract DillemaGame {
         player2ChoiceCommitted = false;
     }
 
-    function getWinner() external view returns (address) {
+    function getWinner() external returns (address) {
         require(roundCount == gameDuration, "Game is not over yet");
+        isGameOver = true;
         if (player1Points > player2Points) {
             return player1;
         } else if (player1Points < player2Points) {

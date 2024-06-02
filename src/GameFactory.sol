@@ -11,6 +11,7 @@ contract GameFactory {
     uint256 public gameCount;
 
     DillemaGame public game;
+    DillemaGame public gamesThatEnded;
 
     constructor(
         address _tokenAddress,
@@ -28,5 +29,9 @@ contract GameFactory {
         game = new DillemaGame(token, tokenAmount, gameDuration);
         game.createNewGame(token);
         gameCount++;
+    }
+
+    function isGameOver() public view returns (bool) {
+        return game.getIsGameOver();
     }
 }

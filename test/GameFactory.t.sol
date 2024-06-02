@@ -22,4 +22,9 @@ contract GameFactoryTest is Test {
         factory.setNewGame();
         assertEq(factory.gameCount(), 1);
     }
+
+    function testIsGameOver() public {
+        factory.setNewGame();
+        assert(factory.isGameOver() == false);
+    }
 }
