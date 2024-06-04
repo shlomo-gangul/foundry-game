@@ -35,10 +35,12 @@ contract DillemaGame {
         roundCount = 0;
     }
 
-    function createNewGame(ERC20 _token) external {
+    function createNewGame(ERC20 _token, address _player) external {
         require(player1 == address(0), "Game already has two players");
-        player1 = msg.sender;
+        // player1 = msg.sender;
+        player1 = _player;
         token = _token;
+        token.transfer(player1, tokenAmount / 2);
         isGameOver = false;
         gameCount++;
     }

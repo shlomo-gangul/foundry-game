@@ -27,7 +27,7 @@ contract GameFactory {
 
     function setNewGame() external {
         game = new DillemaGame(token, tokenAmount, gameDuration);
-        game.createNewGame(token);
+        game.createNewGame(token, msg.sender);
         gameCount++;
     }
 
