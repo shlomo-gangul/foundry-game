@@ -5,30 +5,24 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./DillemaGame.sol";
 
 contract GameFactory {
-    ERC20 public token;
-    uint256 public tokenAmount;
-    uint256 public gameDuration;
     uint256 public gameCount;
-
     DillemaGame public game;
     DillemaGame[] public gamesHistory;
 
-    constructor(
-        address _tokenAddress,
-        uint256 _tokenAmount,
-        uint256 _gameDuration
-    ) {
-        token = ERC20(_tokenAddress);
-        tokenAmount = _tokenAmount;
-        gameDuration = _gameDuration;
+    constructor() {}
 
-        gameCount = 0;
+    function createNewGame(
+        ERC20 token,
+        uint256 tokenAmount,
+        uint256 gameDuration
+    ) external {
+        game = new DillemaGame(token, tokenAmount, gameDuration);
+
+        gameCount++;
     }
 
-    function setNewGame() external {
-        game = new DillemaGame(token, tokenAmount, gameDuration);
-        game.createNewGame(token, msg.sender);
-        gameCount++;
+    function joinGame(address _player) public {
+        game.joinGame(_player);
     }
 
     function isGameOver() public view returns (bool) {

@@ -2,13 +2,14 @@
 pragma solidity ^0.8.25;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Choice} from "./variables/variables.sol";
 
 contract DillemaGame {
     address public player1;
     address public player2;
 
-    uint256 public player1Choice;
-    uint256 public player2Choice;
+    Choice public player1Choice;
+    Choice public player2Choice;
 
     // uint256 public player1Deposit;
     // uint256 public player2Deposit;
@@ -35,19 +36,22 @@ contract DillemaGame {
         roundCount = 0;
     }
 
-    function createNewGame(ERC20 _token, address _player) external {
-        require(player1 == address(0), "Game already has two players");
-        // player1 = msg.sender;
+    function joinGame(address _player) external {
+        require(_player != address(0), "Address does not exist");
+        require(player1 == address(0), "Game already has a player 1");
+        require(
+            token.balanceOf(_player) >= tokenAmount / 2,
+            "Insufficient balance"
+        );
+        token.transfer(_player, tokenAmount / 2);
         player1 = _player;
-        token = _token;
-        token.transfer(player1, tokenAmount / 2);
-        isGameOver = false;
-        gameCount++;
     }
 
     function withdrawOnJoinGame(address _player) external {
-        require(_player == address(0), "Address does not exist");
+        require(_player != address(0), "Address does not exist");
         token.transfer(_player, tokenAmount / 2);
+        player2 = _player;
+        gameCount++;
     }
 
     // function joinGamePlayer1(address _player1) external {
@@ -85,16 +89,22 @@ contract DillemaGame {
     //     player2Deposit = _amount;
     // }
 
-    function setPlayer1Choice(address _player1, uint256 _choice) external {
+    function setPlayer1Choice(address _player1, Choice _choice) external {
         require(player1 == _player1, "Player 1 is not the sender");
-        require(_choice == 1 || _choice == 2, "Invalid choice");
+        require(
+            _choice == Choice.Cooperate || _choice == Choice.Defect,
+            "Invalid choice"
+        );
         player1Choice = _choice;
         player1ChoiceCommitted = true;
     }
 
-    function setPlayer2Choice(address _player2, uint256 _choice) external {
+    function setPlayer2Choice(address _player2, Choice _choice) external {
         require(player2 == _player2, "Player 2 is not the sender");
-        require(_choice == 1 || _choice == 2, "Invalid choice");
+        require(
+            _choice == Choice.Cooperate || _choice == Choice.Defect,
+            "Invalid choice"
+        );
         player2Choice = _choice;
         player2ChoiceCommitted = true;
     }
@@ -106,21 +116,28 @@ contract DillemaGame {
             "Both players must commit their choices"
         );
         require(roundCount <= gameDuration, "Game duration has expired");
-        if (player1Choice == 1 && player2Choice == 1) {
+        if (
+            player1Choice == Choice.Cooperate &&
+            player2Choice == Choice.Cooperate
+        ) {
             player1Points += 5;
             player2Points += 5;
-        } else if (player1Choice == 1 && player2Choice == 2) {
+        } else if (
+            player1Choice == Choice.Cooperate && player2Choice == Choice.Defect
+        ) {
             player1Points += 2;
             player2Points += 8;
-        } else if (player1Choice == 2 && player2Choice == 1) {
+        } else if (
+            player1Choice == Choice.Defect && player2Choice == Choice.Cooperate
+        ) {
             player1Points += 8;
             player2Points += 2;
-        } else if (player1Choice == 2 && player2Choice == 2) {
+        } else if (
+            player1Choice == Choice.Defect && player2Choice == Choice.Defect
+        ) {
             player1Points += 2;
             player2Points += 2;
         }
-        player1Choice = 0;
-        player2Choice = 0;
         player1ChoiceCommitted = false;
         player2ChoiceCommitted = false;
     }

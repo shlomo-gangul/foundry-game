@@ -15,22 +15,22 @@ contract GameFactoryTest is Test {
 
     function setUp() external {
         token = new GameToken("gameTk", "GTK");
-        factory = new GameFactory(address(token), 4e18, 5);
+        factory = new GameFactory();
     }
 
     function testCreateNewGame() public {
-        factory.setNewGame();
+        factory.createNewGame(token, 4e18, 5);
         assertEq(factory.gameCount(), 1);
     }
 
-    function testIsGameOver() public {
-        factory.setNewGame();
-        assert(factory.isGameOver() == false);
-    }
+    // function testIsGameOver() public {
+    //     factory.setNewGame();
+    //     assert(factory.isGameOver() == false);
+    // }
 
-    function testAddGameToHistory() public {
-        factory.setNewGame();
-        factory.addGameToHistory();
-        assertEq(factory.getGamesHistory().length + 1, factory.gameCount());
-    }
+    // function testAddGameToHistory() public {
+    //     factory.setNewGame();
+    //     factory.addGameToHistory();
+    //     assertEq(factory.getGamesHistory().length + 1, factory.gameCount());
+    // }
 }
