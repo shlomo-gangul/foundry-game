@@ -6,20 +6,13 @@ import {DillemaGame} from "../src/DillemaGame.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Choice} from "../src/variables/variables.sol";
 
-contract GameToken is ERC20 {
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
-        _mint(msg.sender, 1000000 * 10 ** 18);
-    }
-}
-
 contract DillemaGameTest is Test {
     DillemaGame game; // Declare the variable 'game'
     ERC20 token;
-    address player1 = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
-    address player2 = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
+    address player1 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+    address player2 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
 
     function setUp() external {
-        token = new GameToken("gameTk", "GTK");
         game = new DillemaGame(token, 4e18, 5);
 
         console.log(token.totalSupply() / 1e18);
@@ -34,23 +27,15 @@ contract DillemaGameTest is Test {
 
     function testSouldBeAbleToJoinGame() public {
         //create new game
-        vm.startPrank(player1);
-        console.log(player1);
-
         //join game player1
         game.joinGame(player1);
 
-        vm.stopPrank();
-
-        vm.startPrank(player2);
-        console.log(player2);
-
         //join game player2
         game.withdrawOnJoinGame(player2);
-
-        vm.stopPrank();
-
         //assert player1 and player2 are not equal
+
+        console.log(game.player1());
+        console.log(game.player2());
         assert(player1 != player2);
         //assert player1 and player2 are not the same address
         assert(player1 != address(0));
