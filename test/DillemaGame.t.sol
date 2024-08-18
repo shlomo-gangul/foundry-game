@@ -3,12 +3,13 @@ pragma solidity ^0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
 import {DillemaGame} from "../src/DillemaGame.sol";
+import {GameToken} from "../src/GameToken.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Choice} from "../src/variables/variables.sol";
 
 contract DillemaGameTest is Test {
     DillemaGame game; // Declare the variable 'game'
-    ERC20 token;
+    GameToken token;
     address player1 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
     address player2 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
 
