@@ -21,8 +21,8 @@ contract GameFactory {
         gameCount++;
     }
 
-    function joinGame(address _player) public {
-        game.joinGame(_player);
+    function joinGame() public {
+        game.joinGame();
     }
 
     function isGameOver() public view returns (bool) {

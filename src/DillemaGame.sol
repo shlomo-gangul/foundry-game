@@ -36,22 +36,17 @@ contract DillemaGame {
         roundCount = 0;
     }
 
-    function joinGame(address _player) external {
-        require(_player != address(0), "Address does not exist");
-        require(player1 == address(0), "Game already has a player 1");
+    function joinGame() external {
         require(
-            token.balanceOf(_player) >= tokenAmount / 2,
+            token.balanceOf(msg.sender) >= tokenAmount / 2,
             "Insufficient balance"
         );
-        token.transfer(_player, tokenAmount / 2);
-        player1 = _player;
-    }
-
-    function withdrawOnJoinGame(address _player) external {
-        require(_player != address(0), "Address does not exist");
-        token.transfer(_player, tokenAmount / 2);
-        player2 = _player;
-        gameCount++;
+        token.transferFrom(msg.sender, address(this), tokenAmount / 2);
+        if (player1 == address(0)) {
+            player1 = msg.sender;
+        } else {
+            player2 = msg.sender;
+        }
     }
 
     // function joinGamePlayer1(address _player1) external {
@@ -89,24 +84,22 @@ contract DillemaGame {
     //     player2Deposit = _amount;
     // }
 
-    function setPlayer1Choice(address _player1, Choice _choice) external {
-        require(player1 == _player1, "Player 1 is not the sender");
+    function setPlayerChoice(Choice _choice) external {
+        require(
+            msg.sender == player1 || msg.sender == player2,
+            "Invalid player"
+        );
         require(
             _choice == Choice.Cooperate || _choice == Choice.Defect,
             "Invalid choice"
         );
-        player1Choice = _choice;
-        player1ChoiceCommitted = true;
-    }
-
-    function setPlayer2Choice(address _player2, Choice _choice) external {
-        require(player2 == _player2, "Player 2 is not the sender");
-        require(
-            _choice == Choice.Cooperate || _choice == Choice.Defect,
-            "Invalid choice"
-        );
-        player2Choice = _choice;
-        player2ChoiceCommitted = true;
+        if (msg.sender == player1) {
+            player1Choice = _choice;
+            player1ChoiceCommitted = true;
+        } else {
+            player2Choice = _choice;
+            player2ChoiceCommitted = true;
+        }
     }
 
     function roundStart() external {

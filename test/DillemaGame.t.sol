@@ -9,17 +9,23 @@ import {Choice} from "../src/variables/variables.sol";
 
 contract DillemaGameTest is Test {
     DillemaGame game; // Declare the variable 'game'
-    GameToken token;
+    GameToken gameToken; // Declare the variable 'gameToken'
     address player1 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
     address player2 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
 
     function setUp() external {
-        game = new DillemaGame(token, 4e18, 5);
+        gameToken = new GameToken("GameToken", "GTK");
+        game = new DillemaGame(gameToken, 4e18, 5);
 
-        console.log(token.totalSupply() / 1e18);
+        console.log(gameToken.balanceOf(address(this)) / 1e18);
+        gameToken.transfer(player1, 2e18);
 
-        token.transfer(player1, 2e18);
-        token.transfer(player2, 2e18);
+        gameToken.transfer(player2, 2e18);
+
+        vm.prank(player1);
+        gameToken.approve(address(game), 1000e18);
+        vm.prank(player2);
+        gameToken.approve(address(game), 1000e18);
     }
 
     function testCreateNewGame() public view {
@@ -29,10 +35,12 @@ contract DillemaGameTest is Test {
     function testSouldBeAbleToJoinGame() public {
         //create new game
         //join game player1
-        game.joinGame(player1);
+        vm.prank(player1);
+        game.joinGame();
 
         //join game player2
-        game.withdrawOnJoinGame(player2);
+        vm.prank(player2);
+        game.joinGame();
         //assert player1 and player2 are not equal
 
         console.log(game.player1());
@@ -43,50 +51,46 @@ contract DillemaGameTest is Test {
         assert(player2 != address(0));
     }
 
-    // function testGameDepositsAreEqual() public {
-    //     //create new game
-    //     );
-    //     //join game player1
-    //     // game.joinGamePlayer1(player1);
-    //     // //join game player2
-    //     // game.joinGamePlayer2(player2);
-    //     //deposit player1
-    //     // game.depositPlayer1(player1, token, 2e18);
-    //     // //deposit player2
-    //     // game.depositPlayer2(player2, token, 2e18);
-    //     //assert deposit of player1 and player2 not 0
-    //     assert(game.player1Deposit() != 0 && game.player2Deposit() != 0);
-    //     //assert player1Deposit is equal to player2Deposit
-    //     assertEq(game.player1Deposit(), game.player2Deposit());
-    //     //assert player1Deposit plus player2Deposit is equal to tokenAmountyer2Deposit is equal to tokenAmount
-    //     assertEq(
-    //         game.player1Deposit() + game.player2Deposit(),
-    //         game.tokenAmount()
-    //     );
-    // }
+    function testGameDepositsAreEqual() public {
+        uint player1balanceBefore = gameToken.balanceOf(player1);
+        uint player2balanceBefore = gameToken.balanceOf(player2);
+        //create new game
+        //join game player1
+        vm.prank(player1);
+        game.joinGame();
+        // //join game player2
+        vm.prank(player2);
+        game.joinGame();
+        //deposit player1
+        uint player1balanceAfter = gameToken.balanceOf(player1);
+        uint player2balanceAfter = gameToken.balanceOf(player2);
 
-    // function testSetGameChoice() public {
-    //     //create new game
+        assert(
+            player1balanceBefore - player1balanceAfter ==
+                player2balanceBefore - player2balanceAfter
+        );
+    }
 
-    //     //join game player1
-    //     // game.joinGamePlayer1(player1);
-    //     // //join game player2
-    //     // game.joinGamePlayer2(player2);
-    //     //deposit player1
-    //     // game.depositPlayer1(player1, token, 2e18);
-    //     // //deposit player2
-    //     // game.depositPlayer2(player2, token, 2e18);
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //assert player1Choice is not equal to player2Choice
-    //     assert(game.player1Choice() != game.player2Choice());
-    //     //assert player1Choice is equal to 1
-    //     assert(game.player1Choice() == Choice.Cooperate);
-    //     //assert player2Choice is equal to 2
-    //     assert(game.player2Choice() == Choice.Defect);
-    // }
+    function testSetGameChoice() public {
+        //create new game
+
+        //join game player1
+        vm.prank(player1);
+        game.joinGame();
+        //join game player2
+        vm.prank(player2);
+        game.joinGame();
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //assert player1Choice is not equal to player2Choice
+        assert(game.player1Choice() != game.player2Choice());
+        //assert player1Choice is equal to 1
+        assert(game.player1Choice() == Choice.Cooperate);
+        //assert player2Choice is equal to 2
+        assert(game.player2Choice() == Choice.Defect);
+    }
 
     // function testPointsAlocation() public {
     //     //create new game
