@@ -28,9 +28,9 @@ contract DillemaGameTest is Test {
         gameToken.approve(address(game), 1000e18);
     }
 
-    function testCreateNewGame() public view {
-        assertEq(game.getGameCount(), 0);
-    }
+    // function testGamecountIsAccurate() public view {
+    //     assertEq(game.getGameCount(), 0); {{{{needs to be in factory}}}}
+    // }
 
     function testSouldBeAbleToJoinGame() public {
         //create new game
@@ -43,12 +43,16 @@ contract DillemaGameTest is Test {
         game.joinGame();
         //assert player1 and player2 are not equal
 
+        address game_Player1 = game.player1();
+        address game_Player2 = game.player2();
+
         console.log(game.player1());
         console.log(game.player2());
-        assert(player1 != player2);
+        assert(game_Player1 != game_Player2);
+
         //assert player1 and player2 are not the same address
-        assert(player1 != address(0));
-        assert(player2 != address(0));
+        assertEq(game_Player1, player1);
+        assertEq(game_Player2, player2);
     }
 
     function testGameDepositsAreEqual() public {

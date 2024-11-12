@@ -17,26 +17,18 @@ contract GameFactory {
         uint256 gameDuration
     ) external {
         game = new DillemaGame(token, tokenAmount, gameDuration);
+        gamesHistory.push(game);
 
         gameCount++;
     }
 
-    function joinGame() public {
-        game.joinGame();
-    }
-
-    function isGameOver() public view returns (bool) {
-        return game.getIsGameOver();
-    }
-
-    function addGameToHistory() public {
-        if (game.getIsGameOver() == true) {
-            gamesHistory.push(game);
-        }
-    }
-
-    function getGamesHistory() public view returns (DillemaGame[] memory) {
+    function getGameHistory() external view returns (DillemaGame[] memory) {
         return gamesHistory;
+    }
+
+    function getGameAtIndex(uint256 index) external view returns (DillemaGame) {
+        require(index < gamesHistory.length, "Index out of bounds");
+        return gamesHistory[index];
     }
 
     function getGameCount() public view returns (uint256) {
