@@ -92,73 +92,78 @@ contract DillemaGameTest is Test {
         assert(game.player2Choice() == Choice.Defect);
     }
 
-    // function testPointsAlocation() public {
-    //     //create new game
+    function testPointsAlocation() public {
+        //create new game
 
-    //     //join game player1
-    //     // game.joinGamePlayer1(player1);
-    //     // //join game player2
-    //     // game.joinGamePlayer2(player2);
-    //     //deposit player1
-    //     // game.depositPlayer1(player1, token, 2e18);
-    //     // //deposit player2
-    //     // game.depositPlayer2(player2, token, 2e18);
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //start a round
-    //     game.roundStart();
-    //     //assert player1Points is equal to 0
-    //     assertEq(game.player1Points(), 2);
-    //     //assert player2Points is equal to 0
-    //     assertEq(game.player2Points(), 8);
-    // }
+        //join game player1
+        vm.prank(player1);
+        game.joinGame();
+        //join game player2
+        vm.prank(player2);
+        game.joinGame();
+        //set game choice for player1
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        //set game choice for player2
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //start a round
+        game.roundStart();
+        //assert player1Points is equal to 0
+        assertEq(game.player1Points(), 2);
+        //assert player2Points is equal to 0
+        assertEq(game.player2Points(), 8);
+    }
 
-    // function testGameWinner() public {
-    //     // must be words defect or cooperate from type Choice
-
-    //     //create new game
-
-    //     //join game player1
-    //     // game.joinGamePlayer1(player1);
-    //     // //join game player2
-    //     // game.joinGamePlayer2(player2);
-    //     //deposit player1
-    //     // game.depositPlayer1(player1, token, 2e18);
-    //     // //deposit player2
-    //     // game.depositPlayer2(player2, token, 2e18);
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //start a round
-    //     game.roundStart();
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //start a round
-    //     game.roundStart();
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //start a round
-    //     game.roundStart();
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //start a round
-    //     game.roundStart();
-    //     //set game choice for player1
-    //     game.setPlayer1Choice(player1, Choice.Cooperate);
-    //     //set game choice for player2
-    //     game.setPlayer2Choice(player2, Choice.Defect);
-    //     //start a round
-    //     game.roundStart();
-    //     //assert game winner is player2
-    //     assertEq(game.getWinner(), player2);
-    // }
+    function testGameWinner() public {
+        //join game player1
+        vm.prank(player1);
+        game.joinGame();
+        //join game player2
+        vm.prank(player2);
+        game.joinGame();
+        //set game choice for player1
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        //set game choice for player2
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //start a round
+        game.roundStart();
+        //set game choice for player1
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        //set game choice for player2
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //start a round
+        game.roundStart();
+        //set game choice for player1
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        //set game choice for player2
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //start a round
+        game.roundStart();
+        //set game choice for player1
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        //set game choice for player2
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //start a round
+        game.roundStart();
+        //set game choice for player1
+        vm.prank(player1);
+        game.setPlayerChoice(Choice.Cooperate);
+        //set game choice for player2
+        vm.prank(player2);
+        game.setPlayerChoice(Choice.Defect);
+        //start a round
+        game.roundStart();
+        //assert game winner is player2
+        console.log(game.getWinner());
+        assertEq(game.getWinner(), player2);
+    }
 }
