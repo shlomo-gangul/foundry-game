@@ -1,19 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "forge-std/console.sol";
 import {Choice} from "./variables/variables.sol";
 
 contract DillemaGame {
     address public player1;
     address public player2;
 
-    Choice public player1Choice;
-    Choice public player2Choice;
-
-    // uint256 public player1Deposit;
-    // uint256 public player2Deposit;
-    ERC20 public tokenPool;
+    Choice public player1Choice = Choice.None;
+    Choice public player2Choice = Choice.None;
 
     uint256 public player1Points;
     uint256 public player2Points;
@@ -22,11 +19,13 @@ contract DillemaGame {
     bool public player2ChoiceCommitted;
     bool public isGameOver;
 
-    ERC20 token;
+    ERC20 public token;
     uint256 public tokenAmount;
-    uint256 gameDuration;
+    uint256 public gameDuration;
     uint256 public roundCount;
-    uint256 gameCount;
+    uint256 public gameCount;
+
+    mapping(address => bytes32) public commitments;
 
     constructor(ERC20 _token, uint256 _tokenAmount, uint256 _gameDuration) {
         token = _token;
@@ -49,31 +48,57 @@ contract DillemaGame {
         }
     }
 
-    function setPlayerChoice(Choice _choice) external {
+    function commitChoice(bytes32 _commitment) external {
         require(
             msg.sender == player1 || msg.sender == player2,
             "Invalid player"
         );
-        require(
-            _choice == Choice.Cooperate || _choice == Choice.Defect,
-            "Invalid choice"
-        );
+        commitments[msg.sender] = _commitment;
         if (msg.sender == player1) {
-            player1Choice = _choice;
             player1ChoiceCommitted = true;
         } else {
-            player2Choice = _choice;
             player2ChoiceCommitted = true;
         }
     }
 
-    function roundStart() external {
-        roundCount++;
+    function revealChoice(Choice _choice, uint256 _nonce) external {
+        require(
+            msg.sender == player1 || msg.sender == player2,
+            "Invalid player"
+        );
+        require(commitments[msg.sender] != bytes32(0), "No commitment found");
+
+        // Verify the commitment
+        bytes32 hash = keccak256(abi.encodePacked(_choice, _nonce));
+        require(hash == commitments[msg.sender], "Invalid choice or nonce");
+
+        // Store the revealed choice
+        if (msg.sender == player1) {
+            player1Choice = _choice;
+        } else {
+            player2Choice = _choice;
+        }
+
+        // Mark the commitment as revealed
+        commitments[msg.sender] = bytes32(0);
+
+        // Check if both players have revealed their choices
+        if (player1ChoiceCommitted && player2ChoiceCommitted) {
+            // Process the round outcome
+            processRoundOutcome();
+            roundCount++;
+            player1ChoiceCommitted = false;
+            player2ChoiceCommitted = false;
+        }
+    }
+
+    function processRoundOutcome() internal {
         require(
             player1ChoiceCommitted && player2ChoiceCommitted,
             "Both players must commit their choices"
         );
         require(roundCount <= gameDuration, "Game duration has expired");
+
         if (
             player1Choice == Choice.Cooperate &&
             player2Choice == Choice.Cooperate
@@ -96,6 +121,8 @@ contract DillemaGame {
             player1Points += 2;
             player2Points += 2;
         }
+        console.log("inContact Player1 Points:", player1Points);
+        console.log("inContact Player2 Points:", player2Points);
         setIsGameOver();
     }
 
@@ -120,15 +147,38 @@ contract DillemaGame {
         return isGameOver;
     }
 
-    function getWinner() external returns (address) {
+    function getWinner() external view returns (address) {
         require(roundCount == gameDuration, "Game is not over yet");
-        setIsGameOver();
         if (player1Points > player2Points) {
             return player1;
         } else if (player1Points < player2Points) {
             return player2;
         } else {
             return address(0);
+        }
+    }
+
+    function getRoundChoices() external view returns (Choice, Choice) {
+        return (player1Choice, player2Choice);
+    }
+
+    function endGame() external {
+        require(
+            msg.sender == player1 || msg.sender == player2,
+            "Invalid player"
+        );
+        require(
+            token.balanceOf(address(this)) == tokenAmount,
+            "Invalid token balance"
+        );
+        isGameOver = true;
+        if (player1Points > player2Points) {
+            token.transfer(player1, tokenAmount);
+        } else if (player1Points < player2Points) {
+            token.transfer(player2, tokenAmount);
+        } else {
+            token.transfer(player1, tokenAmount / 2);
+            token.transfer(player2, tokenAmount / 2);
         }
     }
 }

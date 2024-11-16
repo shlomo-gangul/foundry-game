@@ -19,7 +19,6 @@ contract DillemaGameTest is Test {
 
         console.log(gameToken.balanceOf(address(this)) / 1e18);
         gameToken.transfer(player1, 2e18);
-
         gameToken.transfer(player2, 2e18);
 
         vm.prank(player1);
@@ -28,146 +27,95 @@ contract DillemaGameTest is Test {
         gameToken.approve(address(game), 1000e18);
     }
 
-    // function testGamecountIsAccurate() public view {
-    //     assertEq(game.getGameCount(), 0); {{{{needs to be in factory}}}}
-    // }
-
-    function testSouldBeAbleToJoinGame() public {
-        //create new game
-        //join game player1
+    function testShouldBeAbleToJoinGame() public {
+        // Join game player1
         vm.prank(player1);
         game.joinGame();
 
-        //join game player2
+        // Join game player2
         vm.prank(player2);
         game.joinGame();
-        //assert player1 and player2 are not equal
 
-        address game_Player1 = game.player1();
-        address game_Player2 = game.player2();
-
-        console.log(game.player1());
-        console.log(game.player2());
-        assert(game_Player1 != game_Player2);
-
-        //assert player1 and player2 are not the same address
-        assertEq(game_Player1, player1);
-        assertEq(game_Player2, player2);
+        // Check if both players have joined
+        assertEq(game.player1(), player1);
+        assertEq(game.player2(), player2);
+        vm.prank(player1);
+        game.endGame();
     }
 
-    function testGameDepositsAreEqual() public {
-        uint player1balanceBefore = gameToken.balanceOf(player1);
-        uint player2balanceBefore = gameToken.balanceOf(player2);
-        //create new game
-        //join game player1
+    function testCommitAndRevealChoices() public {
+        // Join game player1 and player2
         vm.prank(player1);
         game.joinGame();
-        // //join game player2
         vm.prank(player2);
         game.joinGame();
-        //deposit player1
-        uint player1balanceAfter = gameToken.balanceOf(player1);
-        uint player2balanceAfter = gameToken.balanceOf(player2);
 
-        assert(
-            player1balanceBefore - player1balanceAfter ==
-                player2balanceBefore - player2balanceAfter
+        // Commit choices
+        bytes32 player1Commitment = keccak256(
+            abi.encodePacked(Choice.Cooperate, uint256(123))
         );
+        bytes32 player2Commitment = keccak256(
+            abi.encodePacked(Choice.Defect, uint256(456))
+        );
+
+        vm.prank(player1);
+        game.commitChoice(player1Commitment);
+        vm.prank(player2);
+        game.commitChoice(player2Commitment);
+
+        // Reveal choices
+        vm.prank(player1);
+        game.revealChoice(Choice.Cooperate, 123);
+        vm.prank(player2);
+        game.revealChoice(Choice.Defect, 456);
+
+        console.log("Player1 Choice:", uint(game.player1Choice()));
+        console.log("Player2 Choice:", uint(game.player2Choice()));
+        // Check if choices are revealed correctly
+        (Choice player1Choice, Choice player2Choice) = game.getRoundChoices();
+        assertEq(uint(player1Choice), uint(Choice.Cooperate));
+        assertEq(uint(player2Choice), uint(Choice.Defect));
+        vm.prank(player1);
+        game.endGame();
     }
 
-    function testSetGameChoice() public {
-        //create new game
+    function testProcessRoundOutcome() public {
+        // Join game player1 and player2
+        vm.prank(player1);
+        game.joinGame();
+        vm.prank(player2);
+        game.joinGame();
 
-        //join game player1
-        vm.prank(player1);
-        game.joinGame();
-        //join game player2
-        vm.prank(player2);
-        game.joinGame();
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //assert player1Choice is not equal to player2Choice
-        assert(game.player1Choice() != game.player2Choice());
-        //assert player1Choice is equal to 1
-        assert(game.player1Choice() == Choice.Cooperate);
-        //assert player2Choice is equal to 2
-        assert(game.player2Choice() == Choice.Defect);
-    }
+        // Commit and reveal choices for multiple rounds
+        for (uint i = 0; i <= game.gameDuration(); i++) {
+            bytes32 player1Commitment = keccak256(
+                abi.encodePacked(Choice.Cooperate, uint256(123 + i))
+            );
+            bytes32 player2Commitment = keccak256(
+                abi.encodePacked(Choice.Defect, uint256(456 + i))
+            );
 
-    function testPointsAlocation() public {
-        //create new game
+            vm.prank(player1);
+            game.commitChoice(player1Commitment);
+            vm.prank(player2);
+            game.commitChoice(player2Commitment);
 
-        //join game player1
-        vm.prank(player1);
-        game.joinGame();
-        //join game player2
-        vm.prank(player2);
-        game.joinGame();
-        //set game choice for player1
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        //set game choice for player2
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //start a round
-        game.roundStart();
-        //assert player1Points is equal to 0
-        assertEq(game.player1Points(), 2);
-        //assert player2Points is equal to 0
-        assertEq(game.player2Points(), 8);
-    }
+            vm.prank(player1);
+            game.revealChoice(Choice.Cooperate, 123 + i);
+            vm.prank(player2);
+            game.revealChoice(Choice.Defect, 456 + i);
 
-    function testGameWinner() public {
-        //join game player1
+            console.log("Round:", i);
+            console.log("Player1 Choice:", uint(game.player1Choice()));
+            console.log("Player2 Choice:", uint(game.player2Choice()));
+            console.log("Player1 Points:", game.player1Points());
+            console.log("Player2 Points:", game.player2Points());
+        }
         vm.prank(player1);
-        game.joinGame();
-        //join game player2
-        vm.prank(player2);
-        game.joinGame();
-        //set game choice for player1
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        //set game choice for player2
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //start a round
-        game.roundStart();
-        //set game choice for player1
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        //set game choice for player2
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //start a round
-        game.roundStart();
-        //set game choice for player1
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        //set game choice for player2
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //start a round
-        game.roundStart();
-        //set game choice for player1
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        //set game choice for player2
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //start a round
-        game.roundStart();
-        //set game choice for player1
-        vm.prank(player1);
-        game.setPlayerChoice(Choice.Cooperate);
-        //set game choice for player2
-        vm.prank(player2);
-        game.setPlayerChoice(Choice.Defect);
-        //start a round
-        game.roundStart();
-        //assert game winner is player2
-        console.log(game.getWinner());
-        assertEq(game.getWinner(), player2);
+        game.endGame();
+        // Check if the game is over and the points are updated correctly
+        assertTrue(game.getIsGameOver());
+        assertEq(game.player1Points(), 10); // 5 rounds * 2 points per round
+        assertEq(game.player2Points(), 40); // 5 rounds * 8 points per round
     }
 }

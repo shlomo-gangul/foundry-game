@@ -12,12 +12,12 @@
 
 2. Game
 
-   - User need to call join function to join the game, join function will collect 50% of the game total amount (not really done)
-   - join function assign the player address (player1 or 2) (not really done)
+   - User need to call join function to join the game, join function will collect 50% of the game total amount ( done)
+   - join function assign the player address (player1 or 2) ( done)
    - roundAnswer(string answer, string password) //encrypt answer (not done)
    - revealAnswer(string password) // reveal answer is to decrypt the answers, we can reveal them after both players submited their answer.(not done)
-   - finishRound() // validate user answers and calculate points (done)
-   - distributeFunds() - after all rounds finished, distribute the game money to players. (done)
+   - finishRound() // validate user answers and calculate points (not done)
+   - distributeFunds() - after all rounds finished, distribute the game money to players. (not done)
 
 3. Logic - Points for each round (done)
 
