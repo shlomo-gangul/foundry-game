@@ -14,10 +14,10 @@
 
    - User need to call join function to join the game, join function will collect 50% of the game total amount ( done)
    - join function assign the player address (player1 or 2) ( done)
-   - roundAnswer(string answer, string password) //encrypt answer (not done)
-   - revealAnswer(string password) // reveal answer is to decrypt the answers, we can reveal them after both players submited their answer.(not done)
-   - finishRound() // validate user answers and calculate points (not done)
-   - distributeFunds() - after all rounds finished, distribute the game money to players. (not done)
+   - roundAnswer(string answer, string password) //encrypt answer (done)
+   - revealAnswer(string password) // reveal answer is to decrypt the answers, we can reveal them after both players submited their answer.(done)
+   - finishRound() // validate user answers and calculate points (done)
+   - distributeFunds() - after all rounds finished, distribute the game money to players. (done)
 
 3. Logic - Points for each round (done)
 
@@ -32,6 +32,6 @@
 
 4. Create tests for game and factory (ongoing)
 
-5. A pool to hold players funds (not really done)
+5. A pool to hold players funds (done)
 6. Validate only 2 users deposit funds to the game (done)
 7.
