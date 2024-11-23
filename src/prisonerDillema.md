@@ -34,4 +34,10 @@
 
 5. A pool to hold players funds (done)
 6. Validate only 2 users deposit funds to the game (done)
-7.
+
+7. Deploy test token and game factory on Holesky
+8. Verify contracts
+9. Nodejs backend to track factory games
+10. API to fetch games list and specific game data (players, amounts, token type, ...)
+
+11.
