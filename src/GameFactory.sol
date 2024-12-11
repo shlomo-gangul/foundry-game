@@ -9,6 +9,8 @@ contract GameFactory {
     DillemaGame public game;
     DillemaGame[] public gamesHistory;
 
+    event GameCreated(address indexed gameAddress, uint256 gameCount);
+
     constructor() {}
 
     function createNewGame(
@@ -20,6 +22,7 @@ contract GameFactory {
         gamesHistory.push(game);
 
         gameCount++;
+        emit GameCreated(address(game), gameCount);
     }
 
     function getGameHistory() external view returns (DillemaGame[] memory) {

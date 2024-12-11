@@ -8,6 +8,7 @@ import {Choice} from "./variables/variables.sol";
 contract DillemaGame {
     address public player1;
     address public player2;
+    address public winner;
 
     Choice public player1Choice = Choice.None;
     Choice public player2Choice = Choice.None;
@@ -26,6 +27,20 @@ contract DillemaGame {
     uint256 public gameCount;
 
     mapping(address => bytes32) public commitments;
+    mapping(uint256 => Choice) public player1Choices;
+    mapping(uint256 => Choice) public player2Choices;
+
+    // Define events
+    event GameJoined(address indexed player);
+    event ChoiceCommitted(address indexed player, bytes32 commitment);
+    event ChoiceRevealed(address indexed player, Choice choice, uint256 nonce);
+    event RoundOutcome(
+        uint256 round,
+        uint256 player1Points,
+        uint256 player2Points
+    );
+    event GameOver(address winner);
+    event GameEnded(address winner, uint256 amount);
 
     constructor(ERC20 _token, uint256 _tokenAmount, uint256 _gameDuration) {
         token = _token;
@@ -46,6 +61,7 @@ contract DillemaGame {
         } else {
             player2 = msg.sender;
         }
+        emit GameJoined(msg.sender); // Emit the GameJoined event
     }
 
     function commitChoice(bytes32 _commitment) external {
@@ -59,6 +75,7 @@ contract DillemaGame {
         } else {
             player2ChoiceCommitted = true;
         }
+        emit ChoiceCommitted(msg.sender, _commitment); // Emit the ChoiceCommitted event
     }
 
     function revealChoice(Choice _choice, uint256 _nonce) external {
@@ -82,8 +99,15 @@ contract DillemaGame {
         // Mark the commitment as revealed
         commitments[msg.sender] = bytes32(0);
 
+        // Emit the ChoiceRevealed event
+        emit ChoiceRevealed(msg.sender, _choice, _nonce);
+
         // Check if both players have revealed their choices
         if (player1ChoiceCommitted && player2ChoiceCommitted) {
+            // Store the choices for the current round
+            player1Choices[roundCount] = player1Choice;
+            player2Choices[roundCount] = player2Choice;
+
             // Process the round outcome
             processRoundOutcome();
             roundCount++;
@@ -121,25 +145,21 @@ contract DillemaGame {
             player1Points += 2;
             player2Points += 2;
         }
-        console.log("inContact Player1 Points:", player1Points);
-        console.log("inContact Player2 Points:", player2Points);
+
+        // Emit the RoundOutcome event
+        emit RoundOutcome(roundCount, player1Points, player2Points);
+
         setIsGameOver();
-    }
-
-    function setGameCount() internal {
-        gameCount++;
-    }
-
-    function getGameCount() external view returns (uint256) {
-        return gameCount;
     }
 
     function setIsGameOver() internal {
         if (roundCount == gameDuration) {
             isGameOver = true;
+            winner = getWinner();
+            gameCount++;
+            emit GameOver(winner); // Emit the GameOver event
         } else {
             isGameOver = false;
-            setGameCount();
         }
     }
 
@@ -147,7 +167,7 @@ contract DillemaGame {
         return isGameOver;
     }
 
-    function getWinner() external view returns (address) {
+    function getWinner() public view returns (address) {
         require(roundCount == gameDuration, "Game is not over yet");
         if (player1Points > player2Points) {
             return player1;
@@ -174,11 +194,15 @@ contract DillemaGame {
         isGameOver = true;
         if (player1Points > player2Points) {
             token.transfer(player1, tokenAmount);
+            winner = player1;
         } else if (player1Points < player2Points) {
             token.transfer(player2, tokenAmount);
+            winner = player2;
         } else {
             token.transfer(player1, tokenAmount / 2);
             token.transfer(player2, tokenAmount / 2);
+            winner = address(0);
         }
+        emit GameEnded(winner, tokenAmount); // Emit the GameEnded event
     }
 }

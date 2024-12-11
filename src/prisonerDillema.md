@@ -40,4 +40,6 @@
 9. Nodejs backend to track factory games
 10. API to fetch games list and specific game data (players, amounts, token type, ...)
 
-11.
+11. add events to all write functions of actions in contracts
+
+12. make it so every 5 sec the backend contact the contract to get new events threw game factory
