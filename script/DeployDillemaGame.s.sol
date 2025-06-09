@@ -6,16 +6,14 @@ import {GameFactory} from "../src/GameFactory.sol";
 import {GameToken} from "../src/GameToken.sol";
 
 contract DeployDillemaGame is Script {
-    function run() external returns (GameFactory) {
-        vm.startBroadcast(
-            0x0fa13b1e8cbd46ac7f9450e71d5eed1f8213d3df1b289da24ed23fc84ca94349
-        );
+    function run() external returns (GameFactory, GameToken) {
+        vm.startBroadcast();
 
-        GameToken gameToken = new GameToken("gameTk", "GTK");
+        GameToken gameToken = new GameToken("Dilema Game Token", "DGT");
         GameFactory gameFactory = new GameFactory();
 
         vm.stopBroadcast();
 
-        return gameFactory;
+        return (gameFactory, gameToken);
     }
 }

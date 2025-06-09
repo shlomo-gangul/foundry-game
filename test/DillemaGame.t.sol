@@ -39,6 +39,23 @@ contract DillemaGameTest is Test {
         // Check if both players have joined
         assertEq(game.player1(), player1);
         assertEq(game.player2(), player2);
+
+        // Complete all rounds first to make game over
+        for (uint32 i = 0; i < game.gameDuration(); i++) {
+            bytes32 player1Commitment = keccak256(abi.encodePacked(Choice.Cooperate, uint256(123 + i)));
+            bytes32 player2Commitment = keccak256(abi.encodePacked(Choice.Defect, uint256(456 + i)));
+
+            vm.prank(player1);
+            game.commitChoice(player1Commitment);
+            vm.prank(player2);
+            game.commitChoice(player2Commitment);
+
+            vm.prank(player1);
+            game.revealChoice(Choice.Cooperate, 123 + i);
+            vm.prank(player2);
+            game.revealChoice(Choice.Defect, 456 + i);
+        }
+
         vm.prank(player1);
         game.endGame();
     }
@@ -51,12 +68,8 @@ contract DillemaGameTest is Test {
         game.joinGame();
 
         // Commit choices
-        bytes32 player1Commitment = keccak256(
-            abi.encodePacked(Choice.Cooperate, uint256(123))
-        );
-        bytes32 player2Commitment = keccak256(
-            abi.encodePacked(Choice.Defect, uint256(456))
-        );
+        bytes32 player1Commitment = keccak256(abi.encodePacked(Choice.Cooperate, uint256(123)));
+        bytes32 player2Commitment = keccak256(abi.encodePacked(Choice.Defect, uint256(456)));
 
         vm.prank(player1);
         game.commitChoice(player1Commitment);
@@ -69,12 +82,29 @@ contract DillemaGameTest is Test {
         vm.prank(player2);
         game.revealChoice(Choice.Defect, 456);
 
-        console.log("Player1 Choice:", uint(game.player1Choice()));
-        console.log("Player2 Choice:", uint(game.player2Choice()));
+        console.log("Player1 Choice:", uint256(game.player1Choice()));
+        console.log("Player2 Choice:", uint256(game.player2Choice()));
         // Check if choices are revealed correctly
         (Choice player1Choice, Choice player2Choice) = game.getRoundChoices();
-        assertEq(uint(player1Choice), uint(Choice.Cooperate));
-        assertEq(uint(player2Choice), uint(Choice.Defect));
+        assertEq(uint256(player1Choice), uint256(Choice.Cooperate));
+        assertEq(uint256(player2Choice), uint256(Choice.Defect));
+
+        // Complete remaining rounds to finish the game
+        for (uint32 i = 1; i < game.gameDuration(); i++) {
+            bytes32 player1Commitment = keccak256(abi.encodePacked(Choice.Cooperate, uint256(123 + i)));
+            bytes32 player2Commitment = keccak256(abi.encodePacked(Choice.Defect, uint256(456 + i)));
+
+            vm.prank(player1);
+            game.commitChoice(player1Commitment);
+            vm.prank(player2);
+            game.commitChoice(player2Commitment);
+
+            vm.prank(player1);
+            game.revealChoice(Choice.Cooperate, 123 + i);
+            vm.prank(player2);
+            game.revealChoice(Choice.Defect, 456 + i);
+        }
+
         vm.prank(player1);
         game.endGame();
     }
@@ -87,13 +117,9 @@ contract DillemaGameTest is Test {
         game.joinGame();
 
         // Commit and reveal choices for multiple rounds
-        for (uint i = 0; i <= game.gameDuration(); i++) {
-            bytes32 player1Commitment = keccak256(
-                abi.encodePacked(Choice.Cooperate, uint256(123 + i))
-            );
-            bytes32 player2Commitment = keccak256(
-                abi.encodePacked(Choice.Defect, uint256(456 + i))
-            );
+        for (uint32 i = 0; i < game.gameDuration(); i++) {
+            bytes32 player1Commitment = keccak256(abi.encodePacked(Choice.Cooperate, uint256(123 + i)));
+            bytes32 player2Commitment = keccak256(abi.encodePacked(Choice.Defect, uint256(456 + i)));
 
             vm.prank(player1);
             game.commitChoice(player1Commitment);
@@ -106,8 +132,8 @@ contract DillemaGameTest is Test {
             game.revealChoice(Choice.Defect, 456 + i);
 
             console.log("Round:", i);
-            console.log("Player1 Choice:", uint(game.player1Choice()));
-            console.log("Player2 Choice:", uint(game.player2Choice()));
+            console.log("Player1 Choice:", uint256(game.player1Choice()));
+            console.log("Player2 Choice:", uint256(game.player2Choice()));
             console.log("Player1 Points:", game.player1Points());
             console.log("Player2 Points:", game.player2Points());
         }

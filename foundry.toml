@@ -6,4 +6,4 @@ libs = ["lib"]
 "@openzeppelin" = "lib/openzeppelin-contracts"
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 [rpc_endpoints]
-holesky = "https://ethereum-holesky-rpc.publicnode.com"
+hoodi = "https://ethereum-hoodi-rpc.publicnode.com"

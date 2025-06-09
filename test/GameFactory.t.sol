@@ -26,12 +26,12 @@ contract GameFactoryTest is Test {
 
     function testAddGameToHistory() public {
         // console.log("Before ", factory.gamesHistory.length);
-        uint gameHistoryBefore = factory.getGameCount();
+        uint256 gameHistoryBefore = factory.getGameCount();
 
         //fake game so i can add it to history
         factory.createNewGame(token, 4e18, 5);
 
-        uint gameHistoryAfter = factory.getGameCount();
+        uint256 gameHistoryAfter = factory.getGameCount();
 
         assert(gameHistoryBefore + 1 == gameHistoryAfter);
     }
